@@ -1,0 +1,221 @@
+
+<div class="split-view" >
+	<div class = "split-view-contents split-view-contents-requests">
+		<div class="data-grid data-grid-requests">
+			<div class="data-container">
+				<h3 >SAP GW Test Case Builder </h3>
+				<button id= 'clearBtn' class="btn"  title="Clear"  ng-click="resetList()" >Clear</button>
+				<button id='gwDetect' class="btn" title="Push to GW Client" ng-click="determineGWSystem()">Determine Gateway Server</button>
+				<button id='gwBtn' class="btn" title="Push to GW Client"  ng-click="pushtoGw()">Push to GW Client</button>
+				<a href=""  id="DownloadFile">
+				<button id='gwDl' class="btn" title="Download Test Case"  ng-click="downloadTestCase()">Download Test Case</button>
+				</a>
+				
+
+
+
+				
+					<div class ="form-group customFormContainer ">
+						<h4 >SAP Gateway Server Details </h4>
+						<div class="alert alert-info">
+							Gateway Server: <strong> {{mainCtrlVal.gwSystem}} </strong> <br>
+							Gateway Server Client (MANDT):  <strong> {{mainCtrlVal.gwClient}} </strong>
+						</div>
+						<div >
+					
+							Change Gateway Server for Test Case creation: 
+							<input type = "text" ng-model = "mainCtrlVal.gwSystem"  class = "form-control" maxlength="1000">
+							<br>
+							Change Server Client (MANDT):
+							<input type = "text" ng-model = "mainCtrlVal.gwClient"  class = "form-control" maxlength="4">
+						</div>
+					</div>
+			
+					<h4 >OData Calls ({{mainCtrlVal.counter -1}})</h4>
+						
+					<strong>Select all Urls </strong> <input type="checkbox"  ng-model="mainCtrlVal.selectDeselectAll" ng-click="toggleUrlCheckBoxes()">
+					<strong>Exclude Notification OData </strong> <input type="checkbox"  ng-model="mainCtrlVal.excludeNotificationOData" >
+				<div >
+					<!--
+						<ul class="mad-list"> 
+							<li ng-repeat="url in mainCtrlVal.urls"><input type="checkbox" ng-model="url.select">{{url.URL}} Method: {{url.Method}}</li>
+						</ul>
+					
+					
+					<ul>
+						<li ng-repeat="url in mainCtrlVal.urls">
+							
+							
+							<div class="mad-list-text">
+							  
+							  <input type="checkbox" ng-model="url.select">  <p>{{url.URL}} Method: {{url.Method}}</p>
+							</div>
+							
+					 </li>
+					</ul>
+					-->
+					
+					 <ol class='newspaper preprocessed-urls'>
+   
+						 
+						  <li ng-repeat="url in mainCtrlVal.urls"><input type="checkbox" ng-model="url.select" >
+						  <!--ng-checked="url.select && mainCtrlVal.selectDeselectAll"-->
+						  
+						  <a disabled=’disabled’ ng-click = "getOdataCallDetails($index)">{{url.URL}} Method: {{url.Method}}</a>
+						  
+						  </li>
+						
+					  </ol>
+				</div>
+					
+				<h4 >SAP GW Test Case Details </h4>
+					<div class ="form-group customFormContainer">
+						Test Group: <strong> {{mainCtrlVal.testGroup}} </strong> <br>
+						Change Test Group : <input type = "text" ng-model = "mainCtrlVal.testGroup" class = "form-control" maxlength="12">
+					
+					</div>
+				
+				<br>
+				
+				<div class="alert alert-danger customFormContainer" ng-show="false">Error Staus(Temporary): {{mainCtrlVal.errorText}}
+				</div>
+				
+				<div class= "tableContainer">
+				
+					<table  class="table table-striped">
+							<tr>
+								<th>Test Group</th>
+								<th>Test Case</th>
+								<th>Method</th>
+								<th>Status</th>
+								<th>Status Description</th>
+								<th>URL</th>
+						   </tr>
+							<!--<tr ng-repeat="testCase in testCaseResponseTable" ng-class="condition ? 'trueClass' : 'falseClass'"> -->
+							
+							<tr ng-repeat="testCase in testCaseResponseTable"  ng-class="{'danger': testCase.Status  === 'failed' , 'success':testCase.Status  === 'success' } "> 
+							
+							
+								<td>{{ testCase.TestGroup }}</td>
+								<td>{{ testCase.TestCase }}</td>
+								<td>{{ testCase.Method }}</td>
+								<td>{{ testCase.Status }}</td>
+								<td>{{ testCase.StatusDescription }}</td>
+								<td>{{ testCase.URL }}</td>
+								
+							
+							</tr>
+					</table>
+								
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="split-view-contents split-view-contents-details">
+  
+		<div id="vdivider"></div>
+		<div id="tabs" class="tabbed-pane">
+		
+ <div class="tabbed-pane-header">
+			<div class="tabbed-pane-header-contents">
+			  <ul class="tabbed-pane-header-tabs">
+				<li class="tabbed-pane-header-tab">
+				<span  class="tabbed-pane-header-tab-title">Odata Call Details</span> 
+				<!--
+				<a class="tabbed-pane-header-tab-title">Odata Call Details</a> 
+				-->
+				
+				</li>
+				
+			  </ul>
+			</div>
+		  </div>
+		  
+		  
+			<div class="tabbed-pane-content data-grid data-grid-details">
+				<div id="tab-breakdown">
+					
+					<div>
+					
+						<div class="odataCallDetailsList horizontalDivider">
+						<h4 data-toggle="collapse" data-target="#general"  ng-click="isGneralCollapsed = !isGneralCollapsed"><i ng-class="{'icon-caret-down': !isGneralCollapsed, 'icon-caret-right': isGneralCollapsed}">
+						</i>  General</h4>
+							
+							<div id="general" class="collapse in">
+								 <ul>
+	   
+							 
+								  <li>
+									<strong>URL:</strong>  {{mainCtrlVal.selectedOdataUrlDetail.URL}}
+								  
+								  </li>
+								  
+								  <li >
+									<strong>METHOD:</strong>  {{mainCtrlVal.selectedOdataUrlDetail.Method}}
+								  
+								  </li>
+							
+								</ul>
+							</div>
+						
+						 
+						
+						</div>
+						
+						<div class="odataCallDetailsList horizontalDivider">
+						<h4  data-toggle="collapse" data-target="#requestHeader" ng-click="isRequestHeaderCollapsed = !isRequestHeaderCollapsed" >
+					
+						 <i ng-class="{'icon-caret-down': !isRequestHeaderCollapsed, 'icon-caret-right': isRequestHeaderCollapsed}">
+						</i> Request Header({{mainCtrlVal.selectedOdataUrlDetail.reqHeader.length}})</h4>
+							
+							<div id="requestHeader" class="collapse in">
+								 <ul  >
+	   
+							 
+								  <li ng-repeat="requestHeader in mainCtrlVal.selectedOdataUrlDetail.reqHeader">
+								 <strong>{{requestHeader.name}}:</strong>  {{requestHeader.value}}
+								  
+								  </li>
+							
+								</ul>
+							</div>
+							
+						</div>
+						
+						
+						
+						
+						<div class="odataCallDetailsList">
+						<h4  data-toggle="collapse" data-target="#requestData" ng-click="isRequestDataCollapsed = !isRequestDataCollapsed">
+						 <i ng-class="{'icon-caret-down': !isRequestDataCollapsed, 'icon-caret-right': isRequestDataCollapsed}">
+						 </i>Request Data</h4>
+							
+							<div id="requestData" class="collapse in">
+								 <ul  >
+	   
+							 
+								 
+								 <li><strong> MimeType:</strong>  {{mainCtrlVal.selectedOdataUrlDetail.postdata.mimeType}}</li>
+								  <li><strong> Payload:</strong>  {{mainCtrlVal.selectedOdataUrlDetail.postdata.text}}</li>
+								  
+							
+								</ul>
+							</div>
+							
+						</div>
+						
+						
+					</div>
+				
+				  
+				
+				</div>
+			</div>
+		</div>
+
+  </div>
+		
+		
+</div>
+
+
