@@ -15,11 +15,24 @@ chrome.extension.onMessage.addListener(
 	var xsrftoken;
 	_this = this;
 // Get XSRF Token and check is system is reachable	
+   
+
 	$.ajax({    async: true,  
 			    url: gwUrl ,
                 type: "GET"	,
 				context: _this ,
-				beforeSend: function(xhr){xhr.setRequestHeader('X-CSRF-Token', 'Fetch');},
+				beforeSend: function(xhr){ 
+				     xhr.setRequestHeader('X-CSRF-Token', 'Fetch');
+					 if( message.userid != "" && message.password != "" ){
+						 
+						 var tok = message.userid + ':' + message.password;
+                         var hash = btoa(tok);
+                         
+						 
+						 xhr.setRequestHeader('Authorization' , "Basic " + hash ) ;
+					 }
+					 
+					 },
 				success: function(res, status, xhr) {
 					console.log("response: ");					
 					console.log(res);
@@ -64,6 +77,13 @@ chrome.extension.onMessage.addListener(
 		console.log( gwUrl);
 		
 		 _this = this; 
+		  if( message.userid != "" && message.password != "" ){
+						 
+		 var tok = message.userid + ':' + message.password;
+		 var hash = btoa(tok); }
+		 this.gwauthtok = null ; 
+		 this.gwauthtok = hash ;
+		 
 		 var oData =   message.request ;   
 		 $.ajax({    async: true,  
 			    url: gwUrl ,
@@ -73,6 +93,9 @@ chrome.extension.onMessage.addListener(
 				beforeSend: function(xhr){
 					xhr.setRequestHeader('X-CSRF-Token',  this.xsrftoken );
 					xhr.setRequestHeader('Content-Type','application/json');
+					if(this.gwauthtok != null ){
+					xhr.setRequestHeader('Authorization' , "Basic " + this.gwauthtok  ) ;
+					}
 					},
 				success: function(res, status, xhr) {
 					console.log("response: ");					

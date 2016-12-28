@@ -17,7 +17,9 @@ angular.module('gwtcbuilder.app').
 							"errorText" : "",
 							"showErrorStatus" : "false",
 							"counter" : 1 ,
-							"excludeNotificationOData": true
+							"excludeNotificationOData": true ,
+							"userid":"",
+							"password":""
 			};
 			
 			
@@ -152,7 +154,24 @@ angular.module('gwtcbuilder.app').
 		var prepareError = function(error){
 			 
 			  
-			  $scope.mainCtrlVal.errorText = error.errorText;
+			  
+			  if(error.response != undefined  ){
+				 if( error.response.status  != undefined ){
+				$scope.mainCtrlVal.errorText = $scope.mainCtrlVal.errorText +  " Status: " +error.response.status  ;
+				}
+				 if( error.response.statusText != undefined ){
+					 $scope.mainCtrlVal.errorText = $scope.mainCtrlVal.errorText +  "  Status Text: " +error.response.statusText ;
+				 }
+				
+				if( error.response.responseText != undefined ){
+				   
+				   console.log(error.response.responseText);
+				
+				}
+			  }
+			  
+			  $scope.mainCtrlVal.errorText = $scope.mainCtrlVal.errorText + "  " + error.errorText;
+			  
 			  if(error.errorText !== ""){
 				   $scope.mainCtrlVal.showErrorStatus = "true";
 			  }else{
@@ -163,12 +182,22 @@ angular.module('gwtcbuilder.app').
 
 		};
 		var prepareSuccess = function(response){
+		   
+		   //Check IF there is some error from JSON RPC
+		   if(response.response.error != undefined) {
+			   prepareError({  errorText : response.response.error.message });
+			   return ;
+		   }
+		   
 		   // Response Data from the server 
 			var responseData = response.response.result.ET_TEST_CASE_DATA ;
 			
 			
 			var gwResponse = [] ;
 			//gwResponse.push(["Test Group", "Test Case", "Method" ,"Status", "Status Description", "URL"]);
+			
+			
+			
 			for(var i = 0 ; i<  responseData.length ; i++){
 				var tmpResponse = responseData[i];
 				//gwResponse.push([responseData[i].TGROUP , responseData[i].TCASE,responseData[i].METHOD,responseData[i].STATUS,responseData[i].STATUS_TEXT,responseData[i].REQUEST_URI]);
@@ -390,10 +419,12 @@ angular.module('gwtcbuilder.app').
 	   
 		$scope.pushtoGw = function(){
 			console.log("pushtoGw");
-			var gwSystem = { url: $scope.mainCtrlVal.gwSystem , client : $scope.mainCtrlVal.gwClient };
+			//$scope.mainCtrlVal.errorText = "";
+			var gwSystem = { url: $scope.mainCtrlVal.gwSystem , client : $scope.mainCtrlVal.gwClient , userid: $scope.mainCtrlVal.userid, password:$scope.mainCtrlVal.password };
 			var excludeNotificationOData	 = $scope.mainCtrlVal.excludeNotificationOData ;
 			$scope.testCaseResponseTable = [];
 			var data =  prepareData(excludeNotificationOData) ;
+			if(data == null || data == undefined ) { return; }
 			if(data.length == 0 ){
 				return;
 			}
@@ -415,7 +446,9 @@ angular.module('gwtcbuilder.app').
 			chrome.extension.sendMessage({
 					url: gwSystem.url ,
 					client : gwSystem.client , 
-					request: data
+					request: data ,
+					userid: gwSystem.userid,
+					password:gwSystem.password 
 				}, function(response) { 
 						showResponsefromServer(response);
 					}
